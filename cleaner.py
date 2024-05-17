@@ -32,12 +32,19 @@ def main(point_cloud_path: str, camera_cloud_path: str, output_file: str, quanti
     # Create a convex hull around the filtered camera cloud
     hull = ConvexHull(camera_cloud)
 
+    max_distance = 0
+    for i in range(len(hull.vertices)):
+        for j in range(i + 1, len(hull.vertices)):
+            dist = np.linalg.norm(camera_cloud[hull.vertices[i]] - camera_cloud[hull.vertices[j]])
+            if dist > max_distance:
+                max_distance = dist
+
     # Calculate the buffer distance
-    buffer_distance = buffer_percent * np.max(hull.equations[:, -1])
+    buffer_distance = buffer_percent * max_distance
 
     # Function to check if points are within the buffered convex hull
-    def is_within_hull(point, hull, buffer_distance):
-        return np.all(np.dot(hull.equations[:, :-1], point.T) + hull.equations[:, -1] <= buffer_distance)
+    def is_within_hull(point, convex_hull, buf_distance):
+        return np.all(np.dot(convex_hull.equations[:, :-1], point.T) + convex_hull.equations[:, -1] <= buf_distance)
 
     # Filter points from the point cloud
     mask = np.array([is_within_hull(point, hull, buffer_distance) for point in cloud_xyz])
