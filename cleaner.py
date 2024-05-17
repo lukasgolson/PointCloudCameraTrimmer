@@ -3,10 +3,17 @@ from pathlib import Path
 
 import laspy
 import numpy as np
+import click
 
 from scipy.spatial import ConvexHull
 
 
+@click.command("Clean", help="Filter a point cloud based on a camera cloud.")
+@click.argument('point_cloud_path', type=click.Path(exists=True))
+@click.argument('camera_cloud_path', type=click.Path(exists=True))
+@click.argument('output_file', type=click.Path())
+@click.option('--quantile', default=0, help='Quantile of camera coordinates to filter cloud points')
+@click.option('--buffer_percent', default=0.1, help='Buffer percentage to filter point cloud points')
 def main(point_cloud_path: str, camera_cloud_path: str, output_file: str, quantile: int = 0,
          buffer_percent: float = 0.1):
     point_cloud_path = str(Path(point_cloud_path).resolve())
@@ -58,8 +65,3 @@ def main(point_cloud_path: str, camera_cloud_path: str, output_file: str, quanti
     trimmed_las.points = trimmed_points
 
     trimmed_las.write(output_file)
-
-
-
-if __name__ == '__main__':
-    main("cloud.las", "cam.las", "output.las")
