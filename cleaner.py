@@ -65,3 +65,7 @@ def main(point_cloud_path: str, camera_cloud_path: str, output_file: str, quanti
     trimmed_las.points = trimmed_points
 
     trimmed_las.write(output_file)
+
+
+if __name__ == '__main__':
+    main()
